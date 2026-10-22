@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="storecopy_connection_view_form" model="ir.ui.view">
+        <field name="name">storecopy.connection.form</field>
+        <field name="model">storecopy.connection</field>
+        <field name="arch" type="xml">
+            <form string="StoreCopy Migration" create="false" delete="false">
+                <header>
+                    <button name="action_connect" type="object" string="Connect to StoreCopy" class="btn-primary" invisible="state == 'connected'"/>
+                    <button name="action_open_storecopy" type="object" string="Open StoreCopy" class="btn-primary" invisible="state != 'connected'"/>
+                    <button name="action_connect" type="object" string="Reconnect" invisible="state != 'connected'"/>
+                    <button name="action_disconnect" type="object" string="Disconnect" invisible="state != 'connected'"
+                            confirm="StoreCopy loses access to this database. Migrations already done stay as they are."/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>StoreCopy Migration</h1>
+                        <p class="text-muted">
+                            Copy products and variants, categories, customers, orders and coupon codes between Odoo and
+                            Shopify, HubSpot, Wix, WooCommerce, Squarespace, PrestaShop, Magento and more.
+                            Nothing in Odoo is changed when Odoo is the source.
+                        </p>
+                    </div>
+                    <div class="alert alert-warning" role="alert" invisible="not last_error">
+                        <field name="last_error" nolabel="1"/>
+                    </div>
+                    <group>
+                        <group string="Migration">
+                            <field name="kind" widget="radio" readonly="state == 'connected'"/>
+                            <field name="code" readonly="state == 'connected'"/>
+                        </group>
+                        <group string="Access">
+                            <field name="odoo_url" readonly="state == 'connected'"/>
+                            <field name="store_name" invisible="state != 'connected'"/>
+                            <field name="user_id" invisible="state != 'connected'"/>
+                            <field name="connected_at" invisible="state != 'connected'"/>
+                        </group>
+                    </group>
+                    <p class="text-muted small">
+                        Connecting creates an API key "StoreCopy migration" for your user (Preferences → Account Security),
+                        which StoreCopy stores encrypted. Disconnect deletes the key.
+                    </p>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_storecopy_connection" model="ir.actions.server">
+        <field name="name">StoreCopy Migration</field>
+        <field name="model_id" ref="model_storecopy_connection"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_open_connection()</field>
+    </record>
+
+    <menuitem id="menu_storecopy_root" name="StoreCopy" action="action_storecopy_connection"
+              web_icon="storecopy_migration,static/description/icon.png" groups="base.group_system" sequence="90"/>
+</odoo>
