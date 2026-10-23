@@ -1,6 +1,6 @@
 {
     "name": "StoreCopy Migration",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0.1",
     "category": "Sales/Sales",
     "summary": "Migrate products, categories, customers, orders and coupons between Odoo and Shopify, WooCommerce, Wix and other e-commerce platforms",
     "description": """
@@ -22,4 +22,5 @@ GoDaddy and Tiendanube. HubSpot: products, contacts and orders only.
     "installable": True,
     "application": True,
     "auto_install": False,
+    "uninstall_hook": "uninstall_hook",
 }
