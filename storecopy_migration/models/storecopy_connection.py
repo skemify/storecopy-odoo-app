@@ -1,4 +1,5 @@
 import logging
+from urllib.parse import urlencode
 
 import requests
 
@@ -9,6 +10,7 @@ _logger = logging.getLogger(__name__)
 
 API_KEY_NAME = "StoreCopy migration"
 TIMEOUT = 60
+DISCONNECT_TIMEOUT = 15
 
 
 class StorecopyConnection(models.Model):
@@ -16,8 +18,9 @@ class StorecopyConnection(models.Model):
 
     Connecting creates an RPC API key for the user who connects (no extra Odoo seat) and registers the database with
     StoreCopy (POST <api_url>/api/install-odoo). StoreCopy checks the key by logging in over JSON-RPC, stores it
-    encrypted and answers with the page that continues the migration. Disconnecting deletes the key, which ends
-    StoreCopy's access.
+    encrypted and answers with the page that continues the migration, plus a pairing key that later connects and the
+    disconnect send back to prove they come from this database. Disconnecting tells StoreCopy
+    (POST <api_url>/api/odoo-disconnect) and deletes the key, which ends StoreCopy's access.
     """
 
     _name = "storecopy.connection"
@@ -49,6 +52,7 @@ class StorecopyConnection(models.Model):
     store_name = fields.Char(string="StoreCopy store", readonly=True)
     user_id = fields.Many2one("res.users", string="Connected as", readonly=True)
     api_key_id = fields.Integer(readonly=True)
+    pairing_key = fields.Char(readonly=True, copy=False, groups="base.group_system")
     connected_at = fields.Datetime(readonly=True)
     last_error = fields.Text(readonly=True)
 
@@ -101,6 +105,7 @@ class StorecopyConnection(models.Model):
             "apiKey": key,
             "kind": self.kind,
             "code": (self.code or "").strip() or None,
+            "pairingKey": self.sudo().pairing_key or None,
             "company": company.name,
             "email": company.email or self.env.user.email or None,
             "currency": company.currency_id.name,
@@ -109,8 +114,10 @@ class StorecopyConnection(models.Model):
 
     def action_connect(self):
         self.ensure_one()
-        if not self.odoo_url or not self.odoo_url.startswith(("http://", "https://")):
-            raise UserError(_("Set the Odoo URL StoreCopy can reach (https://…)."))
+        if not self.odoo_url or not self.odoo_url.startswith("https://"):
+            raise UserError(_("Set the Odoo URL StoreCopy can reach over https (https://…). StoreCopy does not connect over plain http."))
+        if not self._api_url().startswith("https://"):
+            raise UserError(_("The StoreCopy address (system parameter storecopy_migration.api_url) must start with https://."))
         key, key_id = self._generate_api_key()
         try:
             response = requests.post(f"{self._api_url()}/api/install-odoo", json=self._install_payload(key), timeout=TIMEOUT)
@@ -143,6 +150,7 @@ class StorecopyConnection(models.Model):
                 "store_name": body.get("store"),
                 "user_id": self.env.user.id,
                 "api_key_id": key_id,
+                "pairing_key": body.get("pairingKey") or self.sudo().pairing_key,
                 "connected_at": fields.Datetime.now(),
                 "last_error": False,
             }
@@ -151,13 +159,30 @@ class StorecopyConnection(models.Model):
 
     def action_open_storecopy(self):
         self.ensure_one()
-        params = f"platform=odoo&code={self.code or ''}&kind={self.kind}&store={self.store_name or ''}"
-        return self._open_url(f"https://storecopy.com/app?{params}")
+        params = urlencode({"platform": "odoo", "code": self.code or "", "kind": self.kind, "store": self.store_name or ""})
+        return self._open_url(f"{self._api_url()}/app?{params}")
+
+    def _notify_disconnect(self):
+        """Best effort: StoreCopy may be unreachable, and the local disconnect goes ahead anyway."""
+        api_url = self._api_url()
+        if self.state != "connected" or not self.code or not api_url.startswith("https://"):
+            return
+        payload = {"code": self.code, "kind": self.kind, "store": self.store_name, "pairingKey": self.sudo().pairing_key or None}
+        try:
+            response = requests.post(f"{api_url}/api/odoo-disconnect", json=payload, timeout=DISCONNECT_TIMEOUT)
+            body = response.json() if response.content else {}
+        except (requests.RequestException, ValueError) as err:
+            body = {"ok": False, "error": str(err)}
+        if not body.get("ok"):
+            _logger.warning("StoreCopy disconnect notice failed for %s: %s", self.code, body.get("error") or body)
 
     def action_disconnect(self):
         self.ensure_one()
+        self._notify_disconnect()
         self._revoke_api_key()
-        self.write({"state": "disconnected", "api_key_id": 0, "connected_at": False, "store_name": False, "code": False})
+        self.write(
+            {"state": "disconnected", "api_key_id": 0, "connected_at": False, "store_name": False, "code": False, "pairing_key": False}
+        )
         return True
 
     def _open_url(self, url):
