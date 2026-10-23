@@ -69,18 +69,28 @@ class StorecopyConnection(models.Model):
         }
 
     def _generate_api_key(self):
-        """An RPC key of the current user, named so the user finds it under Account Security."""
+        """An RPC key of the current user, named so the user finds it under Account Security.
+
+        Committed in its own cursor: StoreCopy logs in with it while this request is still open, and an uncommitted
+        key does not exist for that login ("invalid credentials").
+        """
         user = self.env.user
         if not user._is_internal():
             raise UserError(_("Only an internal user can connect StoreCopy."))
-        keys = self.env["res.users.apikeys"].sudo()
-        key = keys.with_user(user)._generate("rpc", API_KEY_NAME, None)
-        key_id = keys.search([("user_id", "=", user.id), ("name", "=", API_KEY_NAME)], order="id desc", limit=1).id
+        with self.env.registry.cursor() as cr:
+            keys = self.env(cr=cr)["res.users.apikeys"].sudo()
+            key = keys.with_user(user)._generate("rpc", API_KEY_NAME, None)
+            key_id = keys.search([("user_id", "=", user.id), ("name", "=", API_KEY_NAME)], order="id desc", limit=1).id
         return key, key_id
 
+    def _delete_api_key(self, key_id):
+        """In its own cursor too: a key committed after this request began is not visible to it."""
+        if key_id:
+            with self.env.registry.cursor() as cr:
+                self.env(cr=cr)["res.users.apikeys"].sudo().browse(key_id).exists().unlink()
+
     def _revoke_api_key(self):
-        if self.api_key_id:
-            self.env["res.users.apikeys"].sudo().browse(self.api_key_id).exists().unlink()
+        self._delete_api_key(self.api_key_id)
 
     def _install_payload(self, key):
         company = self.env.company
@@ -109,7 +119,7 @@ class StorecopyConnection(models.Model):
             body = {"ok": False, "error": str(err)}
         if not body.get("ok"):
             # Not raised: the transaction commits, so the unused key is gone and the error stays on the form.
-            self.env["res.users.apikeys"].sudo().browse(key_id).exists().unlink()
+            self._delete_api_key(key_id)
             error = body.get("error") or _("StoreCopy did not accept the connection.")
             self.last_error = error
             _logger.warning("StoreCopy connect failed: %s", error)

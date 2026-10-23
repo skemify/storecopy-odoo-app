@@ -17,6 +17,9 @@ def answer(body):
 class TestStorecopyConnect(TransactionCase):
     def setUp(self):
         super().setUp()
+        # The key is created and deleted in its own cursor; in test mode that cursor shares this test's transaction.
+        self.registry.enter_test_mode(self.cr)
+        self.addCleanup(self.registry.leave_test_mode)
         # An active internal administrator (the test superuser is inactive, so its keys never log in).
         self.env = self.env(user=self.env.ref("base.user_admin"))
         self.env["ir.config_parameter"].sudo().set_param("storecopy_migration.api_url", "https://sc.test/")
