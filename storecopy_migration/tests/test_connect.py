@@ -25,9 +25,11 @@ class TestStorecopyConnect(TransactionCase):
         self.env["ir.config_parameter"].sudo().set_param("storecopy_migration.api_url", "https://sc.test/")
         self.connection = self.env["storecopy.connection"].create({"odoo_url": "https://odoo.example.com/", "kind": "src"})
         self.keys = self.env["res.users.apikeys"].sudo()
+        self.earlier_keys = self._keys().ids
 
     def _keys(self):
-        return self.keys.search([("user_id", "=", self.env.user.id), ("name", "=", "StoreCopy migration")])
+        domain = [("user_id", "=", self.env.user.id), ("name", "=", "StoreCopy migration")]
+        return self.keys.search(domain + [("id", "not in", getattr(self, "earlier_keys", []))])
 
     def test_connect_registers_the_database_with_a_new_key(self):
         reply = {"ok": True, "code": "c-1", "kind": "src", "store": "odoo.example.com", "redirect": "https://storecopy.com/api/pim/odoo?t=x"}
