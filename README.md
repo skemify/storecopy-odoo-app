@@ -15,6 +15,17 @@ store expects (`17.0`), with the module at the repository root.
   `{ok, code, kind, store, redirect}`; the app opens `redirect` (the signed-in wizard on storecopy.com).
 - **Reconnect** issues a new key and deletes the old one; **Disconnect** deletes the key.
 
+## Branches
+
+| Branch | Odoo | Difference |
+|---|---|---|
+| `17.0` | 17 | — |
+| `18.0` | 18 | `res.users.apikeys._generate(scope, name, expiration_date)`: `None` (persistent key, allowed for system administrators) |
+| `19.0` | 19 | same as 18.0 |
+
+Worktrees: `../storecopy-odoo-app-18`, `../storecopy-odoo-app-19`. Tests 6/6 on each (2026-10-23, mig-lab docker
+`npm run odoo:app-install -- --version 18|19`). Change all three branches together.
+
 ## Lab
 
 mig-lab mounts this repository into its Odoo docker (`/mnt/extra-addons`):
