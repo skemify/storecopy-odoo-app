@@ -2,10 +2,11 @@
     "name": "StoreCopy Migration",
     "version": "17.0.1.0.0",
     "category": "Sales/Sales",
-    "summary": "Move products, customers, orders and discounts between Odoo and Shopify, HubSpot, Wix, WooCommerce and 20+ platforms",
+    "summary": "Migrate products, categories, customers, orders and coupons between Odoo and Shopify, WooCommerce, Wix and other e-commerce platforms",
     "description": """
-Connect Odoo to StoreCopy in one click and migrate your catalog, customers, orders and coupons
-to or from Shopify, HubSpot, Wix, WooCommerce, Squarespace, PrestaShop, Magento and more.
+Connect Odoo to StoreCopy in one click and migrate your e-commerce catalog, customers, orders and coupons
+to or from Shopify, WooCommerce, Wix, Squarespace, Square Online, PrestaShop, Magento, Shopware, OpenCart,
+GoDaddy and Tiendanube. HubSpot: products, contacts and orders only.
 """,
     "author": "StoreCopy",
     "website": "https://storecopy.com/services",
