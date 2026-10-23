@@ -1,6 +1,6 @@
 {
     "name": "StoreCopy Migration",
-    "version": "17.0.1.0.0",
+    "version": "18.0.1.0.0",
     "category": "Sales/Sales",
     "summary": "Move products, customers, orders and discounts between Odoo and Shopify, HubSpot, Wix, WooCommerce and 20+ platforms",
     "description": """

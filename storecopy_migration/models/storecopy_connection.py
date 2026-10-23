@@ -74,7 +74,7 @@ class StorecopyConnection(models.Model):
         if not user._is_internal():
             raise UserError(_("Only an internal user can connect StoreCopy."))
         keys = self.env["res.users.apikeys"].sudo()
-        key = keys.with_user(user)._generate("rpc", API_KEY_NAME)
+        key = keys.with_user(user)._generate("rpc", API_KEY_NAME, None)
         key_id = keys.search([("user_id", "=", user.id), ("name", "=", API_KEY_NAME)], order="id desc", limit=1).id
         return key, key_id
 
