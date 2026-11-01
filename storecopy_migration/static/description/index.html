@@ -1,7 +1,7 @@
 <section class="oe_container">
     <div class="oe_row oe_spaced">
         <h2 class="oe_slogan">StoreCopy Migration</h2>
-        <h3 class="oe_slogan">Move your store to or from Odoo in one click</h3>
+        <h3 class="oe_slogan">Move your store or CRM to or from Odoo, without passwords or API keys</h3>
         <div class="oe_span12 oe_mt16" style="text-align:center">
             <a href="https://youtu.be/q-uWnjxVHz4" target="_blank">
                 <img src="video_thumbnail.png" alt="Watch the 2:30 demo: Odoo to Shopify with StoreCopy" style="max-width:100%;border-radius:8px"/>
@@ -22,19 +22,28 @@
                 <li><b>Coupons:</b> loyalty coupon codes with their discount (needs the Odoo Discount &amp; Loyalty app).</li>
             </ul>
             <p>
-                <b>HubSpot:</b> products, contacts and orders. Categories, coupons and CRM records (companies, deals,
-                activities) are not migrated.
+                <b>CRM:</b> companies, contacts, products, leads, opportunities, quotations, orders, invoices and
+                activities from Odoo to HubSpot and Zoho CRM; companies, contacts, products, leads, opportunities and
+                activities to Pipedrive; companies, contacts, deals, orders and activities to ActiveCampaign; and from
+                Zoho CRM or Pipedrive into Odoo. The app needs no Sales or Inventory app: storecopy.com tells you which
+                Odoo apps a migration needs before it starts.
             </p>
             <h3>How it works</h3>
             <ol>
-                <li>Install the app and open <b>StoreCopy</b> from the main menu.</li>
-                <li>Choose the direction and click <b>Connect to StoreCopy</b>. An API key named "StoreCopy migration" is created for your user.</li>
-                <li>Connect the other platform on storecopy.com, review the free estimate and start the migration.</li>
-                <li>Click <b>Disconnect</b> when you are done: the key is deleted.</li>
+                <li>Install the app.</li>
+                <li>On storecopy.com, choose Odoo and enter your Odoo address. Sign in to Odoo if asked and click
+                    <b>Allow</b>: an API key named "StoreCopy migration" is created for your user and handed to
+                    StoreCopy. No password or key to copy. (Or open <b>StoreCopy</b> in Odoo and click
+                    <b>Connect to StoreCopy</b>.)</li>
+                <li>Connect the other platform, review the free estimate and start the migration.</li>
+                <li>Click <b>Disconnect</b> in the StoreCopy menu when you are done: the key is deleted.</li>
             </ol>
             <p>
-                When Odoo is the source, StoreCopy only reads. Your Odoo must be reachable from the internet
-                (Odoo.sh or your own server). Questions: <a href="mailto:support@storecopy.com">support@storecopy.com</a>.
+                When Odoo is the source, StoreCopy only reads. Your Odoo must be reachable from the internet over https
+                (Odoo.sh or your own server). Odoo Online can't install third-party apps; on its Custom plan, which
+                includes the External API, connect on storecopy.com with an API key instead. Only Odoo administrators
+                (Settings access) can connect. Questions:
+                <a href="mailto:support@storecopy.com">support@storecopy.com</a>.
             </p>
         </div>
     </div>
