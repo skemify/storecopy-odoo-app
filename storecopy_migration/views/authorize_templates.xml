@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="authorize_page" name="StoreCopy: allow access">
+        <t t-call="web.login_layout">
+            <div class="o_storecopy_authorize container my-5" style="max-width: 36rem;">
+                <h4 class="mb-3">Connect StoreCopy</h4>
+                <t t-if="not request_info">
+                    <div class="alert alert-danger">This connect link is not valid. Start again on storecopy.com.</div>
+                </t>
+                <t t-elif="not allowed">
+                    <div class="alert alert-warning">
+                        Only an Odoo administrator (Settings access) can connect StoreCopy. Ask one to open this link.
+                    </div>
+                </t>
+                <t t-else="">
+                    <p>
+                        <strong t-out="storecopy_host"/> asks to read and write the database <strong t-out="db"/> as
+                        <strong t-out="user.name"/> (<t t-out="user.login"/>), to migrate
+                        <t t-if="request_info['kind'] == 'dst'">another store or CRM into this Odoo.</t>
+                        <t t-else="">this Odoo to another platform.</t>
+                    </p>
+                    <p class="text-muted small">
+                        Allow creates an API key "StoreCopy migration" for your user (Preferences → Account Security).
+                        StoreCopy keeps it encrypted. Disconnect in the StoreCopy menu, or deleting the key, ends the access.
+                    </p>
+                    <div t-if="error" class="alert alert-danger" t-out="error"/>
+                    <form method="post" action="/storecopy/authorize">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <input type="hidden" name="state" t-att-value="state"/>
+                        <div class="d-flex gap-2">
+                            <button type="submit" name="decision" value="allow" class="btn btn-primary">Allow</button>
+                            <button type="submit" name="decision" value="cancel" class="btn btn-secondary">Cancel</button>
+                        </div>
+                    </form>
+                </t>
+            </div>
+        </t>
+    </template>
+</odoo>

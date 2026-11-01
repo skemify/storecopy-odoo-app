@@ -18,8 +18,10 @@
                         <h1>StoreCopy Migration</h1>
                         <p class="text-muted">
                             Copy products and variants, categories, customers, orders and coupon codes between Odoo and
-                            Shopify, HubSpot, Wix, WooCommerce, Squarespace, PrestaShop, Magento and more.
-                            Nothing in Odoo is changed when Odoo is the source.
+                            Shopify, Wix, WooCommerce, Squarespace, PrestaShop, Magento and more, or CRM contacts,
+                            companies, deals and activities to HubSpot, ActiveCampaign, Pipedrive or Zoho CRM.
+                            Nothing in Odoo is changed when Odoo is the source. Started on storecopy.com? Enter your Odoo
+                            address there, or paste its connect code below.
                         </p>
                     </div>
                     <div class="alert alert-warning" role="alert" invisible="not last_error">
@@ -28,13 +30,14 @@
                     <group>
                         <group string="Migration">
                             <field name="kind" widget="radio" readonly="state == 'connected'"/>
-                            <field name="code" readonly="state == 'connected'"/>
+                            <field name="code" readonly="state == 'connected'" placeholder="Connect code from storecopy.com (optional)"/>
                         </group>
                         <group string="Access">
                             <field name="odoo_url" readonly="state == 'connected'"/>
                             <field name="store_name" invisible="state != 'connected'"/>
                             <field name="user_id" invisible="state != 'connected'"/>
                             <field name="connected_at" invisible="state != 'connected'"/>
+                            <field name="api_key_expires" invisible="not api_key_expires"/>
                         </group>
                     </group>
                     <p class="text-muted small">

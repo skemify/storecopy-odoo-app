@@ -1,4 +1,4 @@
-from . import models
+from . import controllers, models
 from .models.storecopy_connection import API_KEY_NAME
 
 
