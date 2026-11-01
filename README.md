@@ -13,7 +13,14 @@ store expects (`17.0`), with the module at the repository root.
   `<storecopy_migration.api_url>/api/install-odoo` (system parameter, default `https://storecopy.com`). storecopy-back
   logs in with the key over JSON-RPC, stores it encrypted as store `<odoo host>`, pairs it and answers
   `{ok, code, kind, store, redirect}`; the app opens `redirect` (the signed-in wizard on storecopy.com).
-- **Reconnect** issues a new key and deletes the old one; **Disconnect** deletes the key.
+- **From storecopy.com** (since 1.1.0): the wizard asks only for the Odoo address, storecopy-back checks
+  `GET /storecopy/info` and sends the merchant to `/storecopy/authorize?state=…`, a consent page (Settings
+  administrators) whose **Allow** creates the key and posts it to `/api/install-odoo` with StoreCopy's signed state,
+  then returns to the wizard. The form's pairing code also takes the wizard's connect code `<code>.<pairingKey>`.
+- **Reconnect** issues a new key and deletes the old one; **Disconnect** deletes the key. On 18/19 a daily cron hands
+  StoreCopy a new key a week before an expiring key runs out (`POST /api/odoo-rotate`); administrators' keys don't expire.
+- Depends on `base` and `web` only, so a CRM-only database can install it; storecopy.com checks the apps a route needs.
+- The StoreCopy address must be https, except a StoreCopy on `localhost` / `host.docker.internal` (the lab).
 
 ## Lab
 
